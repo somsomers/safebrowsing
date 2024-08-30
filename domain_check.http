@@ -1,0 +1,15 @@
+POST http://localhost:8080/v4/threatMatches:find
+Content-Type: application/json
+
+{
+  "threatInfo": {
+  "threatTypes": ["UNWANTED_SOFTWARE", "MALWARE", "POTENTIALLY_HARMFUL_APPLICATION", "SOCIAL_ENGINEERING"],
+  "platformTypes": ["ANY_PLATFORM"],
+  "threatEntryTypes": ["URL"],
+  "threatEntries": [
+    {"url": "hardlyfind.com"},
+    {"url": "thedirsite.com"}
+  ]
+  }
+}
+

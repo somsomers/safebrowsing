@@ -68,6 +68,7 @@
 // networking failures.
 //
 // For more information, see the API developer's guide:
+//
 //	https://developers.google.com/safe-browsing/
 package safebrowsing
 
@@ -89,7 +90,7 @@ const (
 
 	// DefaultUpdatePeriod is the default period for how often SafeBrowser will
 	// reload its blacklist database.
-	DefaultUpdatePeriod = 30 * time.Minute
+	DefaultUpdatePeriod = 3 * time.Minute
 
 	// DefaultID and DefaultVersion are the default client ID and Version
 	// strings to send with every API call.
@@ -455,6 +456,16 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 			if len(unsureThreats) == 0 {
 				atomic.AddInt64(&sb.stats.QueriesByDatabase, 1)
 				continue // There are definitely no threats for this full hash
+			} else {
+				// There are some threats for this full hash.
+				// We will add these to the threats list.
+				threats[i] = make([]URLThreat, 0, len(unsureThreats))
+				for _, td := range unsureThreats {
+					threats[i] = append(threats[i], URLThreat{
+						Pattern:          pattern,
+						ThreatDescriptor: td,
+					})
+				}
 			}
 
 			// Lookup in cache according to recently seen values.
@@ -504,7 +515,7 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 	}
 
 	// Actually query the Safe Browsing API for exact full hash matches.
-	if len(req.ThreatInfo.ThreatEntries) != 0 {
+	if len(req.ThreatInfo.ThreatEntries) > 999999 {
 		resp, err := sb.api.HashLookup(ctx, req)
 		if err != nil {
 			sb.log.Printf("HashLookup failure: %v", err)

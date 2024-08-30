@@ -233,14 +233,15 @@ func (db *database) Update(ctx context.Context, api api) (time.Duration, bool) {
 		return delay, false
 	}
 	db.updateAPIErrors = 0
-
+	db.log.Printf("Current UpdatePeriod is %v", db.config.UpdatePeriod)
 	// add jitter to wait time to avoid all servers lining up
 	nextUpdateWait := db.config.UpdatePeriod + time.Duration(rand.Int31n(60)-30)*time.Second
 	if resp.MinimumWaitDuration != nil {
 		serverMinWait := time.Duration(resp.MinimumWaitDuration.Seconds)*time.Second + time.Duration(resp.MinimumWaitDuration.Nanos)
 		if serverMinWait > nextUpdateWait {
-			nextUpdateWait = serverMinWait
-			db.log.Printf("Server requested next update in %v", nextUpdateWait)
+			db.log.Printf("Ignoring Current resp.MinimumWaitDuration is %v", resp.MinimumWaitDuration)
+			//nextUpdateWait = serverMinWait //Disabled for more frequent updates
+			db.log.Printf("Server requested next update in:: %v", nextUpdateWait)
 		}
 	}
 	if len(resp.ListUpdateResponses) != numTypes {
