@@ -44,17 +44,17 @@ const (
 // order to provide protection for the latest threats.
 //
 // The process for updating the database is as follows:
-//	* At startup, if a database file is provided, then load it. If loaded
-//	properly (not corrupted and not stale), then set tfu as the contents.
-//	Otherwise, pull a new threat list from the Safe Browsing API.
-//	* Periodically, synchronize the database with the Safe Browsing API.
-//	This uses the State fields to update only parts of the threat list that have
-//	changed since the last sync.
-//	* Anytime tfu is updated, generate a new tfl.
+//   - At startup, if a database file is provided, then load it. If loaded
+//     properly (not corrupted and not stale), then set tfu as the contents.
+//     Otherwise, pull a new threat list from the Safe Browsing API.
+//   - Periodically, synchronize the database with the Safe Browsing API.
+//     This uses the State fields to update only parts of the threat list that have
+//     changed since the last sync.
+//   - Anytime tfu is updated, generate a new tfl.
 //
 // The process for querying the database is as follows:
-//	* Check if the requested full hash matches any partial hash in tfl.
-//	If a match is found, return a set of ThreatDescriptors with a partial match.
+//   - Check if the requested full hash matches any partial hash in tfl.
+//     If a match is found, return a set of ThreatDescriptors with a partial match.
 type database struct {
 	config *Config
 
@@ -244,7 +244,14 @@ func (db *database) Update(ctx context.Context, api api) (time.Duration, bool) {
 			db.log.Printf("Server requested next update in:: %v", nextUpdateWait)
 		}
 	}
+
 	if len(resp.ListUpdateResponses) != numTypes {
+		for _, value := range db.config.ThreatLists {
+			db.log.Printf("ExpectedThreat: %v", value.ThreatType)
+		}
+		for _, value := range resp.ListUpdateResponses {
+			db.log.Printf("ListUpdateResponses: %v", value.GetThreatType())
+		}
 		db.setError(errors.New("safebrowsing: threat list count mismatch"))
 		db.log.Printf("invalid server response: got %d, want %d threat lists",
 			len(resp.ListUpdateResponses), numTypes)
