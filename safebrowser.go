@@ -513,7 +513,9 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 	for tet := range tetm {
 		req.ThreatInfo.ThreatEntryTypes = append(req.ThreatInfo.ThreatEntryTypes, tet)
 	}
-
+	if len(req.ThreatInfo.ThreatEntries) > 999999 {
+		sb.log.Printf("CBCHECK")
+	}
 	// Actually query the Safe Browsing API for exact full hash matches.
 	if len(req.ThreatInfo.ThreatEntries) > 999999 {
 		resp, err := sb.api.HashLookup(ctx, req)
