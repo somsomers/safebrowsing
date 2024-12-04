@@ -320,7 +320,7 @@ func (db *database) setError(err error) {
 // Staleness is defined as being older than two of the configured update periods
 // plus jitter.
 func (db *database) isStale(lastUpdate time.Time) bool {
-	if db.config.now().Sub(lastUpdate) > 2*(db.config.UpdatePeriod+jitter) {
+	if db.config.now().Sub(lastUpdate) > 10*(db.config.UpdatePeriod+jitter) {
 		return true
 	}
 	return false
