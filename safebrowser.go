@@ -107,6 +107,7 @@ var (
 	errClosed = errors.New("safebrowsing: handler is closed")
 	errStale  = errors.New("safebrowsing: threat list is stale")
 )
+var counterMap = make(map[string]int)
 
 // ThreatType is an enumeration type for threats classes. Examples of threat
 // classes are malware, social engineering, etc.
@@ -516,8 +517,19 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 	if len(req.ThreatInfo.ThreatEntries) > 0 {
 		sb.log.Printf("CBCHECK")
 	}
+	now := time.Now()
+	dateKey := now.Format("2006-01-02")
+	if _, exists := counterMap[dateKey]; !exists {
+		counterMap = make(map[string]int) // Reset the map
+		counterMap[dateKey] = 0
+	}
+	if counterMap[dateKey] > 9500 {
+		sb.log.Printf("API key depleted for today, %d queries made", counterMap[dateKey])
+	}
 	// Actually query the Safe Browsing API for exact full hash matches.
-	if len(req.ThreatInfo.ThreatEntries) > 0 {
+	if len(req.ThreatInfo.ThreatEntries) > 0 && counterMap[dateKey] < 9500 {
+		counterMap[dateKey]++
+
 		resp, err := sb.api.HashLookup(ctx, req)
 		if err != nil {
 			sb.log.Printf("HashLookup failure: %v", err)
