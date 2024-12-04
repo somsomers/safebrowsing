@@ -517,7 +517,7 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 		sb.log.Printf("CBCHECK")
 	}
 	// Actually query the Safe Browsing API for exact full hash matches.
-	if len(req.ThreatInfo.ThreatEntries) > 999999 {
+	if len(req.ThreatInfo.ThreatEntries) > 0 {
 		resp, err := sb.api.HashLookup(ctx, req)
 		if err != nil {
 			sb.log.Printf("HashLookup failure: %v", err)
