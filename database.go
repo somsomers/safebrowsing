@@ -34,7 +34,7 @@ import (
 // leeway before declaring the database as stale.
 const (
 	maxRetryDelay  = 24 * time.Hour
-	baseRetryDelay = 15 * time.Minute
+	baseRetryDelay = 1 * time.Minute
 	jitter         = 30 * time.Second
 )
 
@@ -252,7 +252,7 @@ func (db *database) Update(ctx context.Context, api api) (time.Duration, bool) {
 		for _, value := range resp.ListUpdateResponses {
 			db.log.Printf("ListUpdateResponses: %v", value.GetThreatType())
 		}
-		db.setError(errors.New("safebrowsing: threat list count mismatch"))
+		//db.setError(errors.New("safebrowsing: threat list count mismatch"))
 		db.log.Printf("invalid server response: got %d, want %d threat lists",
 			len(resp.ListUpdateResponses), numTypes)
 		return nextUpdateWait, false
