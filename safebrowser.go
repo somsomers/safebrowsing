@@ -514,14 +514,15 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 	for tet := range tetm {
 		req.ThreatInfo.ThreatEntryTypes = append(req.ThreatInfo.ThreatEntryTypes, tet)
 	}
-	if len(req.ThreatInfo.ThreatEntries) > 0 {
-		sb.log.Printf("CBCHECK")
-	}
+
 	now := time.Now()
 	dateKey := now.Format("2006-01-02")
 	if _, exists := counterMap[dateKey]; !exists {
 		counterMap = make(map[string]int) // Reset the map
 		counterMap[dateKey] = 0
+	}
+	if len(req.ThreatInfo.ThreatEntries) > 0 {
+		sb.log.Printf("CBCHECK, %d queries made", counterMap[dateKey])
 	}
 	if counterMap[dateKey] > 9500 {
 		sb.log.Printf("API key depleted for today, %d queries made", counterMap[dateKey])
