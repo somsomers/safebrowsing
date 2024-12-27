@@ -457,16 +457,7 @@ func (sb *SafeBrowser) LookupURLsContext(ctx context.Context, urls []string) (th
 			if len(unsureThreats) == 0 {
 				atomic.AddInt64(&sb.stats.QueriesByDatabase, 1)
 				continue // There are definitely no threats for this full hash
-			} else {
-				// There are some threats for this full hash.
-				// We will add these to the threats list.
-				threats[i] = make([]URLThreat, 0, len(unsureThreats))
-				for _, td := range unsureThreats {
-					threats[i] = append(threats[i], URLThreat{
-						Pattern:          pattern,
-						ThreatDescriptor: td,
-					})
-				}
+
 			}
 
 			// Lookup in cache according to recently seen values.
